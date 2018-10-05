@@ -1,18 +1,37 @@
+
 version: 2.1
 orbs:
   artifactory: sandbox/artifactory@0.1
+
+jobs:
+  use-commands:
+    docker:
+      - image: circleci/openjdk:8
+      - image: docker.bintray.io/jfrog/artifactory-oss:latest
+    steps:
+      - run: dockerize -wait tcp://localhost:8081 -timeout 1m
+      - run: echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
+      - run: echo "export ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey)" >> $BASH_ENV
+
+      - artifactory/install
+      - artifactory/configure
+      - run: echo "not a jar" >> artifact.jar
+      - artifactory/upload:
+          source: artifact.jar
+          target: example-repo-local/my-asset
 
 workflows:
   version: 2
   test-orb:
     jobs:
-      - artifactory/upload:
-          name: Test Upload
-          source: test/artifact.jar
-          target: repo/path
-          build-steps:
-            - run: mvn install -B
-          pre-steps:
-            - run: dockerize -wait tcp://localhost:8081 -timeout 1m
-            - run: echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
-            - run: echo "export ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey)" >> $BASH_ENV
+      - use-commands
+      #- artifactory/upload:
+      #    name: Test Upload
+      #    source: test/artifact.jar
+      #    target: repo/path
+      #    build-steps:
+      #      - run: mvn install -B
+      #    pre-steps:
+      #      - run: dockerize -wait tcp://localhost:8081 -timeout 1m
+      #      - run: echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
+      #      - run: echo "export ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey)" >> $BASH_ENV
