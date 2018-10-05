@@ -1,7 +1,7 @@
 
 version: 2.1
 orbs:
-  artifactory: sandbox/artifactory@0.1
+  artifactory: sandbox/artifactory@volatile
 
 jobs:
   use-commands:
