@@ -10,6 +10,7 @@ jobs:
       - image: docker.bintray.io/jfrog/artifactory-oss:latest
     steps:
       - run: |
+          dockerize -wait tcp://localhost:8081 -timeout 1m
           #wait for artifactory to finish startup stuff
           while true; do
             STATUS=`curl -uadmin:password  http://localhost:8081/artifactory/api/system/ping`
