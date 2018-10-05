@@ -14,7 +14,7 @@ jobs:
           #wait for artifactory to finish startup stuff
           while true; do
             STATUS=`curl -uadmin:password  http://localhost:8081/artifactory/api/system/ping`
-              if [ "$STATUS" -eq "OK" ];then
+              if [ "$STATUS" = "OK" ];then
                 exit 0
               fi
               sleep 2
