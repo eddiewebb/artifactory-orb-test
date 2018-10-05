@@ -1,9 +1,6 @@
-
-executors:
-  with-artifactory:
-    docker:
-      image: circleci/openjdk:8
-      image: docker.bintray.io/jfrog/artifactory-oss:latest
+version: 2.1
+orbs:
+  artifactory: sandbox/artifactory@0.1
 
 workflows:
   version: 2
