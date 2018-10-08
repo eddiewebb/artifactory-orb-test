@@ -18,6 +18,8 @@ jobs:
           source: artifact.jar
           target: example-repo-local/my-asset
           build-name: ${CIRCLE_BUILD_NUM}
+      - artifactory/build-integration:
+          build-name: ${CIRCLE_BUILD_NUM}
 
 workflows:
   version: 2
