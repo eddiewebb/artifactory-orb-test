@@ -9,6 +9,7 @@ jobs:
       - image: circleci/openjdk:8
       - image: docker.bintray.io/jfrog/artifactory-oss:latest
     steps:
+      - checkout
       - setup-rt
 
       - artifactory/install
@@ -49,8 +50,10 @@ commands:
             while true; do
               STATUS=`curl -uadmin:password  http://localhost:8081/artifactory/api/system/ping 2>/dev/null`
               if [ "$STATUS" = "OK" ];then
+                echo "Artifactory ready!"
                 exit 0
               fi
+              echo "Waiting for Artifactory to initialize"
               sleep 2
             done
       - run: echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
