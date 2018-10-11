@@ -9,9 +9,12 @@ jobs:
       - image: circleci/openjdk:8
       - image: docker.bintray.io/jfrog/artifactory-oss:latest
     steps:
+      # These steps are solely for use in the test project to configure the Artifactory OSS instance used for testing.
       - checkout
       - setup-rt
 
+
+      # These are the example steps for consuming the orb.
       - artifactory/install
       - artifactory/configure
       - run: echo "not a jar" >> artifact.jar
