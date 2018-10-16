@@ -4,8 +4,8 @@ orbs:
   artifactory: sandbox/artifactory@volatile
 
 jobs:
-  executor: with-rt-container
-      - image: docker.bintray.io/jfrog/artifactory-pro:latest
+  use-commands:
+    executor: with-rt-container
     steps:
       # These steps are solely for use in the test project to configure the Artifactory OSS instance used for testing.
       - checkout
@@ -29,15 +29,15 @@ workflows:
     jobs:
       - use-commands
       # cant use job level in testing until we have hosted artiactory, or custom executors
-      - artifactory/upload:
-          name: Test Upload
-          source: test/artifact.jar
-          target: repo/path
-          build-steps:
-            - run: mvn install -B
-          pre-steps:
-            - setup-rt
-          executor: with-rt-oss-container
+      #- artifactory/upload:
+      #    name: Test Upload
+      #    source: test/artifact.jar
+      #    target: repo/path
+      #    build-steps:
+      #      - run: mvn install -B
+      #    pre-steps:
+      #      - setup-rt
+      #    executor: with-rt-oss-container
 
 
 commands:
