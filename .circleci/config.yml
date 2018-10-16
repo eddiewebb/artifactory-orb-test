@@ -50,14 +50,13 @@ commands:
             # wait for port availabiluty, otherwise curl errors out immediately
             dockerize -wait tcp://localhost:8081 -timeout 1m
             #wait for artifactory to finish startup stuff
-            while true; do
-              STATUS=`curl -uadmin:password  http://localhost:8081/artifactory/api/system/ping 2>/dev/null`
-              if [ "$STATUS" = "OK" ];then
-                echo "Artifactory ready!"
-              fi
+            STATUS="Dont know..."
+            while [ "$STATUS" != "OK" ]; do
               echo "Waiting for Artifactory to initialize"
               sleep 2
+              STATUS=`curl -uadmin:password  http://localhost:8081/artifactory/api/system/ping 2>/dev/null`
             done
+            echo "Artifactory ready!"
             #setup our license
             echo '{"licenseKey":"'${RT_LICENSE_KEY}'"}' > license.json
             curl -s -o /dev/null -w "%{http_code}" \
