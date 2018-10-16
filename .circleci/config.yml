@@ -59,8 +59,8 @@ commands:
             echo "Artifactory ready!"
             #setup our license
             echo '{"licenseKey":"'${RT_LICENSE_KEY}'"}' > license.json
-            curl -s -o /dev/null -w "%{http_code}" \
-              -uadmin:password -X POST -d @license.json -H "content-type:application/json" http://localhost:8081/artifactory/api/system/licenses 
+            HTTPCODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -uadmin:password -X POST -d @license.json -H "content-type:application/json" http://localhost:8081/artifactory/api/system/licenses) 
             if [ "$HTTPCODE" -ne 200 ];then
               echo "Unable to add license to Artifactory, failing build"
               curl -uadmin:password -X POST -d @license.json http://localhost:8081/artifactory/api/system/licenses
