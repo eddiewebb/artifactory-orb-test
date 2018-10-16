@@ -54,7 +54,6 @@ commands:
               STATUS=`curl -uadmin:password  http://localhost:8081/artifactory/api/system/ping 2>/dev/null`
               if [ "$STATUS" = "OK" ];then
                 echo "Artifactory ready!"
-                exit 0
               fi
               echo "Waiting for Artifactory to initialize"
               sleep 2
@@ -74,7 +73,8 @@ commands:
       - run: |
           echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
       - run: |
-          echo "export ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey | jq -r '.apiKey')" >> $BASH_ENV
+          ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey | jq -r '.apiKey'
+          echo "export ARTIFACTORY_API_KEY=${ARTIFACTORY_API_KEY}" >> $BASH_ENV
           echo "Created API KEy: ${ARTIFACTORY_API_KEY}"
       - run: curl -uadmin:password  http://localhost:8081/artifactory/api/system
       
