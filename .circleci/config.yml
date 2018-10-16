@@ -62,16 +62,21 @@ commands:
             #setup our license
             echo '{"licenseKey":"'${RT_LICENSE_KEY}'"}' > license.json
             curl -s -o /dev/null -w "%{http_code}" \
-              -uadmin:password -X POST -d @license.json http://localhost:8081/artifactory/api/system/licenses 
+              -uadmin:password -X POST -d @license.json -H "content-type:application/json" http://localhost:8081/artifactory/api/system/licenses 
             if [ "$HTTPCODE" -ne 200 ];then
               echo "Unable to add license to Artifactory, failing build"
               curl -uadmin:password -X POST -d @license.json http://localhost:8081/artifactory/api/system/licenses
               exit 1
             fi
+            echo "License configured"
+            curl -uadmin:password http://localhost:8081/artifactory/api/system/licenses
             #setup docker repo...
-      - run: echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
-      - run: echo "export ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey | jq -r '.apiKey')" >> $BASH_ENV
-
+      - run: |
+          echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
+      - run: |
+          echo "export ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey | jq -r '.apiKey')" >> $BASH_ENV
+          echo "Created API KEy: ${ARTIFACTORY_API_KEY}"
+      - run: curl -uadmin:password  http://localhost:8081/artifactory/api/system
       
 
 executors:
