@@ -15,6 +15,22 @@ jobs:
       # These are the example steps for consuming the orb.
       - artifactory/install
       - artifactory/configure
+      - setup_remote_docker
+      - run:
+          name: BUild and push docker
+          command: |
+            docker login -u admin -p password http://localhost:8081/docker-repo
+            docker pull hello-world
+            docker tag hello-world:latest localhost:8081/docker-repo/hello-world:latest
+            docker push localhost:8081/docker-repo/hello-world:latest
+            jfrog rt dp localhost:8081/docker-repo/hello-world:latest docker-repo --build-name=foo --build-number=1.0.0
+            jfrog rt bp foo 1.0.0
+
+
+
+
+
+
       - run: echo "not a jar" >> artifact.jar
       - artifactory/upload:
           source: artifact.jar
@@ -22,6 +38,10 @@ jobs:
           build-name: ${CIRCLE_BUILD_NUM}
       - artifactory/build-integration:
           build-name: ${CIRCLE_BUILD_NUM}
+
+
+      # these steps assert that our artifacts and build environmen info are in RT
+      - inspect-rt
 
 workflows:
   version: 2
@@ -69,6 +89,10 @@ commands:
             echo "License configured"
             curl -uadmin:password http://localhost:8081/artifactory/api/system/licenses
             #setup docker repo...
+            curl -X PUT -d @docker-repo.json -H "content-type: application/json" -u admin:password http://localhost:8081/artifactory/api/repositories/docker-repo
+            # setup http settings for pth ccess to docker repo
+            curl -uadmin:password -X POST -d @webServer.json -H "content-type:application/json" http://localhost:8081/artifactory/api/system/configuration/webServer
+
       - run: |
           echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
       - run: |
@@ -76,7 +100,11 @@ commands:
           echo "export ARTIFACTORY_API_KEY=${ARTIFACTORY_API_KEY}" >> $BASH_ENV
           echo "Created API KEy: ${ARTIFACTORY_API_KEY}"
       - run: curl -uadmin:password  http://localhost:8081/artifactory/api/system
-      
+  inspect-rt:
+    description: Confirm existience of our assets in Artifactory
+    steps:
+      - run: curl http://localhost:8081/artifactory/api/builds | jq
+      - run: curl http://localhost:8081/artifactory/api/storage/example-repo-local/my-asset | jq
 
 executors:
   with-rt-container:  
