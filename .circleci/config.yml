@@ -32,12 +32,12 @@ workflows:
   version: 2
   test-orb:
     jobs:
-      - use-commands
+      #- use-commands
       - artifactory/docker-publish:
           name: Docker Publish
           docker-registry: orbdemos-docker-local.jfrog.io
           repository: docker-local
-          docker-tag: orbdemos-docker-local.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
+          docker-tag: orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
           docker-steps:
             - run: docker pull hello-world
             - run: docker tag hello-world:latest orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
