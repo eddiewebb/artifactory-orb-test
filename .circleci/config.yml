@@ -68,7 +68,7 @@ commands:
           command: |
             docker run --name artifactory -d -p 8081:8081 docker.bintray.io/jfrog/artifactory-pro:latest
             # wait for port availabiluty, otherwise curl errors out immediately
-            dockerize -wait tcp://localhost:8081 -timeout 1m
+            while ! nc -z localhost 8081 ; do sleep 1 ; done
             #wait for artifactory to finish startup stuff
             STATUS="Dont know..."
             while [ "$STATUS" != "OK" ]; do
