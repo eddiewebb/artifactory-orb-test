@@ -4,7 +4,7 @@ orbs:
   artifactory: sandbox/artifactory@volatile
 
 jobs:
-  use-commands:
+  upload-commands:
     machine: true
     steps:
       # These steps are solely for use in the test project to configure the Artifactory OSS instance used for testing.
@@ -32,7 +32,14 @@ workflows:
   version: 2
   test-orb:
     jobs:
-      - use-commands
+      - upload-commands
+      - artifactory/upload:
+          name: Test Upload
+          source: artifact.jar
+          target: local-generic/myfolder
+          build-name: generic-artifact
+          build-steps:
+            - run: echo "not a jar" > artifact.jar
       - artifactory/docker-publish:
           name: Docker Publish
           docker-registry: orbdemos-docker-local.jfrog.io
