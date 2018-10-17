@@ -25,7 +25,8 @@ workflows:
 
 jobs:
   upload-commands:
-    machine: true
+    docker:
+      - image: circleci/node:10
     steps:
       # These are the example steps for consuming the orb.
       - checkout
@@ -35,9 +36,9 @@ jobs:
       - artifactory/upload:
           source: artifact.jar
           target: local-generic/commandfolder
-          build-name: generic-artifact
+          build-name: generic-artifact-command
           build-number: ${CIRCLE_BUILD_NUM}
       - artifactory/build-integration:
-          build-name: ${CIRCLE_PROJECT_REPONAME}
+          build-name: generic-artifact-command
           build-number: ${CIRCLE_BUILD_NUM}
 
