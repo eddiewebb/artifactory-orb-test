@@ -5,7 +5,7 @@ orbs:
 
 jobs:
   use-commands:
-    executor: with-rt-container
+    machine: true
     steps:
       # These steps are solely for use in the test project to configure the Artifactory OSS instance used for testing.
       - checkout
@@ -15,7 +15,6 @@ jobs:
       # These are the example steps for consuming the orb.
       - artifactory/install
       - artifactory/configure
-      - setup_remote_docker
       - run:
           name: BUild and push docker
           command: |
@@ -67,6 +66,7 @@ commands:
       - run:
           name: Initialize Artifactory Image
           command: |
+            docker run -p 8081:8081 docker.bintray.io/jfrog/artifactory-pro:latest
             # wait for port availabiluty, otherwise curl errors out immediately
             dockerize -wait tcp://localhost:8081 -timeout 1m
             #wait for artifactory to finish startup stuff
@@ -106,9 +106,5 @@ commands:
       - run: curl http://localhost:8081/artifactory/api/builds | jq
       - run: curl http://localhost:8081/artifactory/api/storage/example-repo-local/my-asset | jq
 
-executors:
-  with-rt-container:  
-    docker:
-      - image: circleci/node:10
-      - image: docker.bintray.io/jfrog/artifactory-pro:latest
+
 
