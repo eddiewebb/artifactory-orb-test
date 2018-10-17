@@ -11,25 +11,9 @@ jobs:
       - checkout
       - setup-rt
 
-
       # These are the example steps for consuming the orb.
       - artifactory/install
       - artifactory/configure
-      - run:
-          name: BUild and push docker
-          command: |
-            docker login -u admin -p password http://localhost:8081/docker-repo
-            docker pull hello-world
-            docker tag hello-world:latest localhost:8081/docker-repo/hello-world:latest
-            docker push localhost:8081/docker-repo/hello-world:latest
-            jfrog rt dp localhost:8081/docker-repo/hello-world:latest docker-repo --build-name=foo --build-number=1.0.0
-            jfrog rt bp foo 1.0.0
-
-
-
-
-
-
       - run: echo "not a jar" >> artifact.jar
       - artifactory/upload:
           source: artifact.jar
@@ -47,16 +31,15 @@ workflows:
   test-orb:
     jobs:
       - use-commands
-      # cant use job level in testing until we have hosted artiactory, or custom executors
-      #- artifactory/upload:
-      #    name: Test Upload
-      #    source: test/artifact.jar
-      #    target: repo/path
-      #    build-steps:
-      #      - run: mvn install -B
-      #    pre-steps:
-      #      - setup-rt
-      #    executor: with-rt-oss-container
+      - artifactory/docker-publish:
+          name: Docker Publish
+          docker-registry: orbdemos-docker-local.jfrog.io
+          repository: docker-local
+          docker-tag: orbdemos-docker-local.jfrog.io/my-image:1.0-${CIRCLE_BUILD_NUM}
+          docker-steps:
+            - run: docker pull hello-world
+            - run: docker tag hello-world:latest orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
+        
 
 
 commands:
@@ -104,7 +87,7 @@ commands:
     description: Confirm existience of our assets in Artifactory
     steps:
       - run: curl http://localhost:8081/artifactory/api/builds | jq
-      - run: curl http://localhost:8081/artifactory/api/storage/example-repo-local/my-asset | jq
+      - run: curl http://localhost:8081/artifactory/api/storage/docker-repo | jq
 
 
 
