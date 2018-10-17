@@ -3,40 +3,14 @@ version: 2.1
 orbs:
   artifactory: sandbox/artifactory@volatile
 
-jobs:
-  upload-commands:
-    machine: true
-    steps:
-      # These steps are solely for use in the test project to configure the Artifactory OSS instance used for testing.
-      - checkout
-      - setup-rt
-
-      # These are the example steps for consuming the orb.
-      - artifactory/install
-      - artifactory/configure
-      - run: echo "not a jar" >> artifact.jar
-      - artifactory/upload:
-          source: artifact.jar
-          target: example-repo-local/my-asset
-          build-name: ${CIRCLE_PROJECT_REPONAME}
-          build-number: ${CIRCLE_BUILD_NUM}
-      - artifactory/build-integration:
-          build-name: ${CIRCLE_PROJECT_REPONAME}
-          build-number: ${CIRCLE_BUILD_NUM}
-
-
-      # these steps assert that our artifacts and build environmen info are in RT
-      - inspect-rt
-
 workflows:
-  version: 2
   test-orb:
     jobs:
       - upload-commands
       - artifactory/upload:
           name: Test Upload
           source: artifact.jar
-          target: local-generic/myfolder
+          target: local-generic/jobfolder
           build-name: generic-artifact
           build-steps:
             - run: echo "not a jar" > artifact.jar
@@ -48,56 +22,22 @@ workflows:
           docker-steps:
             - run: docker pull hello-world
             - run: docker tag hello-world:latest orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}
-        
 
-
-commands:
-  setup-rt:
-    description: Wait for Artifactory to intialize
+jobs:
+  upload-commands:
+    machine: true
     steps:
-      - run:
-          name: Initialize Artifactory Image
-          command: |
-            docker run --name artifactory -d -p 8081:8081 docker.bintray.io/jfrog/artifactory-pro:latest
-            # wait for port availabiluty, otherwise curl errors out immediately
-            while ! nc -z localhost 8081 ; do sleep 1 ; done
-            #wait for artifactory to finish startup stuff
-            STATUS="Dont know..."
-            while [ "$STATUS" != "OK" ]; do
-              echo "Waiting for Artifactory to initialize"
-              sleep 2
-              STATUS=`curl -uadmin:password  http://localhost:8081/artifactory/api/system/ping 2>/dev/null`
-            done
-            echo "Artifactory ready!"
-            #setup our license
-            echo '{"licenseKey":"'${RT_LICENSE_KEY}'"}' > license.json
-            HTTPCODE=$(curl -s -o /dev/null -w "%{http_code}" \
-              -uadmin:password -X POST -d @license.json -H "content-type:application/json" http://localhost:8081/artifactory/api/system/licenses) 
-            if [ "$HTTPCODE" -ne 200 ];then
-              echo "Unable to add license to Artifactory, failing build"
-              curl -uadmin:password -X POST -d @license.json http://localhost:8081/artifactory/api/system/licenses
-              exit 1
-            fi
-            echo "License configured"
-            curl -uadmin:password http://localhost:8081/artifactory/api/system/licenses
-            #setup docker repo...
-            curl -X PUT -d @docker-repo.json -H "content-type: application/json" -u admin:password http://localhost:8081/artifactory/api/repositories/docker-repo
-            # setup http settings for pth ccess to docker repo
-            curl -uadmin:password -X POST -d @webServer.json -H "content-type:application/json" http://localhost:8081/artifactory/api/system/configuration/webServer
-
-      - run: |
-          echo "export ARTIFACTORY_URL=http://localhost:8081/artifactory" >> $BASH_ENV
-          echo "export ARTIFACTORY_USER=admin" >> $BASH_ENV
-      - run: |
-          ARTIFACTORY_API_KEY=$(curl -uadmin:password -X POST http://localhost:8081/artifactory/api/security/apiKey | jq -r '.apiKey')
-          echo "export ARTIFACTORY_API_KEY=${ARTIFACTORY_API_KEY}" >> $BASH_ENV
-          echo "Created API KEy: ${ARTIFACTORY_API_KEY}"
-      - run: curl -uadmin:password  http://localhost:8081/artifactory/api/system
-  inspect-rt:
-    description: Confirm existience of our assets in Artifactory
-    steps:
-      - run: curl http://localhost:8081/artifactory/api/builds | jq
-      - run: curl http://localhost:8081/artifactory/api/storage/docker-repo | jq
-
-
+      # These are the example steps for consuming the orb.
+      - checkout
+      - artifactory/install
+      - artifactory/configure
+      - run: echo "not a jar" >> artifact.jar
+      - artifactory/upload:
+          source: artifact.jar
+          target: local-generic/commandfolder
+          build-name: generic-artifact
+          build-number: ${CIRCLE_BUILD_NUM}
+      - artifactory/build-integration:
+          build-name: ${CIRCLE_PROJECT_REPONAME}
+          build-number: ${CIRCLE_BUILD_NUM}
 
