@@ -21,6 +21,7 @@ workflows:
           docker-tag: orbdemos-docker-local.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
           pre-steps:
             - checkout
+            - echo ${DOCKERTAG}
             - run: cp docker-publish-assets/Dockerfile .
       - artifactory/docker-publish:
           name: Docker Publish CustomBuild
@@ -28,7 +29,8 @@ workflows:
           repository: docker-local
           docker-tag: orbdemos-docker-local.jfrog.io/hello-world-custom:1.0-${CIRCLE_BUILD_NUM}
           docker-steps:
-            - run: docker build -t orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM} docker-publish-assets
+            - run: echo "orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM}"
+            - run: docker build -t orbdemos-docker-local.jfrog.io/hello-world:1.0-${CIRCLE_BUILD_NUM} docker-publish-assets/
 
 jobs:
   upload-commands:
