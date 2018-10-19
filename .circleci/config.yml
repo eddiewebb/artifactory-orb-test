@@ -16,9 +16,9 @@ workflows:
             - run: echo "not a jar" > artifact.jar
       - artifactory/docker-publish:
           name: Docker Publish
-          docker-registry: orbdemos-docker-local.jfrog.io
-          repository: docker-local
-          docker-tag: orbdemos-docker-local.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
+          docker-registry: orbdemos-docker.jfrog.io
+          repository: docker
+          docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
           pre-steps:
             - checkout
             - run: cp docker-publish-assets/Dockerfile .
