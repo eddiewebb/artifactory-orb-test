@@ -18,6 +18,7 @@ workflows:
           name: Docker Publish
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
+          build-name: hello-alpine
           docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
           pre-steps:
             - checkout
@@ -26,10 +27,12 @@ workflows:
           name: Docker Publish CustomBuild
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
+          build-name: hello-alpine-custom
           docker-tag: orbdemos-docker.jfrog.io/hello-world-custom:1.0-${CIRCLE_BUILD_NUM}
           docker-steps:
             - run: echo ${DOCKERTAG}
             - run: docker build -t $DOCKERTAG docker-publish-assets/
+
 
 jobs:
   upload-commands:
