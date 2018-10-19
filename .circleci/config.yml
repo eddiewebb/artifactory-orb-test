@@ -19,6 +19,7 @@ workflows:
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
           build-name: hello-alpine
+          build-integration: false
           docker-tag: orbdemos-docker.jfrog.io/hello-world-default:1.0-${CIRCLE_BUILD_NUM}
           pre-steps:
             - checkout
