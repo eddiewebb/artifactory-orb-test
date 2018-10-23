@@ -23,7 +23,7 @@ workflows:
           name: Docker Publish with Jib
           docker-registry: orbdemos-docker.jfrog.io
           repository: docker
-          build-name: hello-alpine-custom
+          build-name: spring-boot-jib
           docker-tag: orbdemos-docker.jfrog.io/spring-boot:1.0-${CIRCLE_BUILD_NUM}
           docker-steps:
             - run: echo ${DOCKERTAG}
