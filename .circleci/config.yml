@@ -27,7 +27,9 @@ workflows:
           docker-tag: orbdemos-docker.jfrog.io/spring-boot:1.0-${CIRCLE_BUILD_NUM}
           docker-steps:
             - run: echo ${DOCKERTAG}
-            - run: cd java && ./mvnw compile jib:exportDockerContext -s .mvn/wrapper/settings.xml
+            - run: alias mvn='/home/circleci/project/java/mvnw'
+            - run: cd java && jfrog rt mvn "compile jib:exportDockerContext -f pom.xml -s .mvn/wrapper/settings.xml" artifactory.config --build-name=spring-boot-jib --build-number=${CIRCLE_BUILD_NUM}
+            #- run: cd java && ./mvnw compile jib:exportDockerContext -s .mvn/wrapper/settings.xml
             - run: docker build -t ${DOCKERTAG} java/target/jib-docker-context
 
 
