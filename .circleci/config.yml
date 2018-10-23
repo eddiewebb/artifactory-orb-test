@@ -28,6 +28,6 @@ workflows:
           docker-steps:
             - run: echo ${DOCKERTAG}
             - run: cd java && ./mvnw compile jib:exportDockerContext -s .mvn/wrapper/settings.xml
-            - run: docker build -t ${DOCKERTAG} target/jib-docker-context
+            - run: docker build -t ${DOCKERTAG} java/target/jib-docker-context
 
 
